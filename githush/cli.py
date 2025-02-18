@@ -2,16 +2,18 @@ import click
 from githush.scan import scan_repository
 
 @click.group()
-def main():
-    """Githush: A CLI tool to scan repositories for secrets."""
+def main() -> None:
     pass
 
-@main.command()
-@click.argument("path", type=click.Path(exists=True))
-def scan(path):
+@click.command()
+@click.argument("path", type=click.Path(exists=True, file_okay=False, dir_okay=True))
+@click.option("--staged-only", is_flag=True, help="Scan only staged files.")
+def scan(path: str, staged_only: bool) -> None:
     """Scan a repository or directory for exposed secrets."""
     click.echo(f"Scanning {path} for secrets...")
-    scan_repository(path)
+    scan_repository(path, staged_only)
+
+main.add_command(scan)
 
 if __name__ == "__main__":
     main()
