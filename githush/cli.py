@@ -1,5 +1,5 @@
 import click
-from githush.scan import scan_repository
+from githush.scan import scan_path
 
 @click.group()
 def main() -> None:
@@ -11,7 +11,7 @@ def main() -> None:
 def scan(path: str, staged_only: bool) -> None:
     """Scan a repository or directory for exposed secrets."""
     click.echo(f"Scanning {path} for secrets...")
-    scan_repository(path, staged_only)
+    scan_path(path, staged_only)
 
 main.add_command(scan)
 
