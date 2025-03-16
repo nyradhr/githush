@@ -1,19 +1,29 @@
 import os
 import re
+import click
 from typing import List
 from git import Repo
 from githush.config import load_config
 
 SECRET_PATTERNS = [
-    r'(?i)(api[_-]?key|secret|token)[\s:=]+["\'][a-z0-9]{20,}["\']', #generic key
-    r'(password|pwd|passwd|api_key|secret)\s*=\s*["\'][^"\']+["\']' , #generic password
-    r'(ghp|gho|ghu|ghs|ghr)_[a-zA-Z0-9]{36}', #GitHub
-    r'(AKIA|ASIA)[A-Z0-9]{16,}', #AWS
-    r'xox[baprs]-[0-9A-Za-z]{10,48}', #Slack
-    r'(mongodb|postgres|mysql|redis|couchdb)://[^\s]+' #db connection strings
-    r'ey[A-Za-z0-9-_]+?\.[A-Za-z0-9-_]+\.([A-Za-z0-9-_]+)?', #JWT
-    r'[0-9a-fA-F]{32}', #Azure
-    r'sk_live_[0-9a-zA-Z]{24}', #Stripe
+    # Generic API keys, secrets, secret keys, and tokens
+    r'(?i)(?:api[_-]?key|secret|secret[_-]?key|token)[\s:=]+["\']?[a-zA-Z0-9]{8,}["\']?',
+    # Generic passwords
+    r'(?i)(?:password|pwd|pw|passwd)[\s:=]+["\']?[^"\']{4,}["\']?',
+    # GitHub tokens
+    r'(?:ghp|gho|ghu|ghs|ghr)_[a-zA-Z0-9]{36}',
+    # AWS Access Keys
+    r'(?:AKIA|ASIA)[A-Z0-9]{16}',
+    # Slack tokens
+    r'xox[baprs]-[0-9A-Za-z]{10,48}',
+    # Database connection strings
+    r'(?:mongodb|postgres|mysql|redis|couchdb)://[^\s]+',
+    # JWT
+    r'ey[A-Za-z0-9-_]+?\.[A-Za-z0-9-_]+\.([A-Za-z0-9-_]+)?',
+    # Generic 32-character secrets (e.g., Azure secrets)
+    r'[0-9a-fA-F]{32}',
+    # Stripe keys
+    r'sk_live_[0-9a-zA-Z]{24}',
 ]
 
 def get_staged_files(repo: Repo) -> list:
@@ -44,10 +54,10 @@ def get_file_content(path: str) -> str:
         with open(path, "r", encoding="utf-8", errors="ignore") as f:
             return f.read()
     except Exception as e:
-        print(f"Error reading {path}: {e}")
+        click.echo(f"Error reading {path}: {e}")
         return ""
 
-def scan_file(file_content: str, regex_patterns: list = SECRET_PATTERNS) -> list:
+def scan_content(file_content: str, regex_patterns: list) -> list:
     """Scan file content for secrets based on provided regex patterns."""
     findings = []
     for pattern in regex_patterns:
@@ -56,20 +66,33 @@ def scan_file(file_content: str, regex_patterns: list = SECRET_PATTERNS) -> list
             findings.extend(matches)
     return findings
 
-def scan_path(path: str, staged_only: bool = False) -> List[str]:
+def scan_path(path: str, staged_only: bool = False, config_path: str = None) -> List[str]:
     """Scan a repository or folder for secrets."""
     result = []
-    config = load_config()
+    click.echo("Loading configuration...")
+    config = load_config(config_path)
     exclude_extensions = config.get("exclude_extensions", [])
     exclude_paths = config.get("exclude_paths", [])
+    regex_patterns = SECRET_PATTERNS + config.get("custom_patterns", [])
     if staged_only:
         repo = Repo(path)
         files = get_staged_files(repo)
     else:
         files = get_files(path)
+    click.echo(f"Scanning {path} for secrets...")
     for file in files:
-        if not any(file.endswith(ext) for ext in exclude_extensions) and not any(excl in file for excl in exclude_paths):
+        if (
+            not any(file.endswith(ext) for ext in exclude_extensions) and
+            not any(re.search(pattern, file) for pattern in exclude_paths)
+        ):
             content = get_staged_file_content(repo, file) if staged_only else get_file_content(file)
-            findings = scan_file(content)
-            result.extend(findings)
+
+            findings = []
+            for line_number, line in enumerate(content.splitlines(), start=1):
+                secrets = scan_content(line, regex_patterns)
+                for secret in secrets:
+                    findings.append((line_number, secret))
+
+            if findings:
+                result.append((file, findings))
     return result

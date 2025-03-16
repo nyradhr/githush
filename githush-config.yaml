@@ -10,6 +10,7 @@ exclude_extensions:
 exclude_paths:
   - "node_modules/"
   - "vendor/"
+  - "^\\."  # Exclude hidden files and directories
 
 # Custom regex patterns (optional)
 custom_patterns:
