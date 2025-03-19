@@ -37,17 +37,17 @@ def get_staged_files(repo: Repo) -> list:
 
 def get_staged_file_content(repo: Repo, filepath: str) -> str:
     """Retrieve the content of a staged file."""
-    print(f"Attempting to retrieve staged content for file: {filepath}")
+    #print(f"Attempting to retrieve staged content for file: {filepath}")
     staged_changes = repo.index.diff("HEAD")
-    print(f"Staged changes found: {[diff.a_path for diff in staged_changes]}")
+    #print(f"Staged changes found: {[diff.a_path for diff in staged_changes]}")
     
     for diff in staged_changes:
-        print(f"Inspecting diff: {diff.a_path}")
+        #print(f"Inspecting diff: {diff.a_path}")
         if diff.a_path == filepath:
-            print(f"File {filepath} found in staged changes.")
+            #print(f"File {filepath} found in staged changes.")
             blob = diff.a_blob
             content = blob.data_stream.read().decode("utf-8")
-            print(f"Content of {filepath}: {content}")
+            #print(f"Content of {filepath}: {content}")
             return content
     
     raise ValueError(f"File {filepath} not found in staged changes")
