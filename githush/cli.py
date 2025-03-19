@@ -10,7 +10,7 @@ def main() -> None:
 @click.option("--staged-only", is_flag=True, help="Scan only staged files.")
 @click.option(
     "--config-path",
-    type=click.Path(exists=True),  # Ensure the provided path exists
+    type=click.Path(exists=True),
     help="Path to the githush configuration file"
 )
 def scan(path: str, staged_only: bool, config_path: str) -> None:
