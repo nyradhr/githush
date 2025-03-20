@@ -1,4 +1,5 @@
 import click
+import sys
 from githush.scan import scan_path
 
 @click.group()
@@ -22,8 +23,10 @@ def scan(path: str, staged_only: bool, config_path: str) -> None:
             click.echo(f"- {file_path}:")
             for line_number, secret in secrets:
                 click.echo(f"    Line {line_number}: {secret[:50]}{'...' if len(secret) > 50 else ''}")
+        sys.exit(1)
     else:
         click.echo("No secrets found.")
+        sys.exit(0)
 
 main.add_command(scan)
 

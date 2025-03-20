@@ -131,10 +131,12 @@ def install_pre_commit_hook(repo_path: str) -> None:
     pre_commit_hook_path = os.path.join(git_hooks_dir, "pre-commit")
     
     hook_script = f"""#!/bin/sh
-echo "Running pre-commit secret scan..."
-githush scan . --staged-only
+echo "Currently staged files:" >> .git/hooks/debug.log
+git diff --staged --name-only >> .git/hooks/debug.log
+python -m githush.cli scan . --staged-only
+echo "Scan exit code: $?" >> .git/hooks/debug.log
 if [ $? -ne 0 ]; then
-    echo "Commit blocked due to detected secrets. Please fix them and try again."
+    echo "Commit blocked due to detected secrets. Please fix them and try again." >> .git/hooks/debug.log
     exit 1
 fi
 """
