@@ -1,13 +1,18 @@
+import os
+import subprocess
+
+import pygit2
 import pytest
+import tempfile
 from githush.scan import scan_path
 from githush.cli import scan
 from click.testing import CliRunner
 
 
 @pytest.fixture
-def setup_test_environment(tmp_path):
+def setup_test_environment_folder(tmp_path):
 
-    test_dir = tmp_path / "test_repo"
+    test_dir = tmp_path / "test_dir"
     test_dir.mkdir()
 
     # File with secrets
@@ -24,8 +29,23 @@ def setup_test_environment(tmp_path):
 
     return test_dir
 
-def test_scan_path_correct_line_numbers(setup_test_environment):
-    test_dir = setup_test_environment
+@pytest.fixture
+def setup_test_environment_repo():
+    
+    dir_path = tempfile.mkdtemp()
+    test_repo = pygit2.init_repository(dir_path, False)
+
+    secret_file = os.path.join(dir_path, "secrets.txt")
+    with open(secret_file, "w") as f:
+        f.write("password: hunter2")
+    
+    test_repo.index.add(os.path.relpath(secret_file, dir_path)) 
+    test_repo.index.write()
+
+    return dir_path
+
+def test_scan_path_correct_line_numbers(setup_test_environment_folder):
+    test_dir = setup_test_environment_folder
     results = scan_path(str(test_dir))
     expected_results = [
         (
@@ -41,8 +61,8 @@ def test_scan_path_correct_line_numbers(setup_test_environment):
     assert results == expected_results
 
 
-def test_cli_scan_correct_output(setup_test_environment):
-    test_dir = setup_test_environment
+def test_cli_scan_correct_output(setup_test_environment_folder):
+    test_dir = setup_test_environment_folder
     runner = CliRunner()
 
     result = runner.invoke(scan, [str(test_dir)])
@@ -55,3 +75,19 @@ def test_cli_scan_correct_output(setup_test_environment):
     assert "Line 4: password=supersecretpassword123" in output
 
     assert "file_without_secrets.txt" not in output
+
+
+def test_scan_repo(setup_test_environment_repo):
+    test_dir = setup_test_environment_repo
+
+    results = scan_path(str(test_dir), True)
+    expected_results = [
+        (
+            str("secrets.txt"),
+            [
+                (1, "password: hunter2")
+            ],
+        )
+    ]
+    assert len(results) == 1  # One file should have secrets
+    assert results == expected_results
