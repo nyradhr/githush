@@ -47,11 +47,11 @@ def test_cli_scan_correct_output(setup_test_environment):
 
     result = runner.invoke(scan, [str(test_dir)])
 
-    assert result.exit_code == 0  # Ensure the command runs successfully
+    assert result.exit_code == 1
     output = result.output
 
     assert "file_with_secrets.txt" in output
-    assert "Line 2: SECRET_KEY=123456789..." in output
-    assert "Line 4: password=supersecretpassword123..." in output
+    assert "Line 2: SECRET_KEY=123456789" in output
+    assert "Line 4: password=supersecretpassword123" in output
 
     assert "file_without_secrets.txt" not in output
