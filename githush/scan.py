@@ -36,17 +36,17 @@ def get_files(path: str) -> List[str]:
             files_to_scan.append(filepath)
     return files_to_scan
 
-def get_file_content(file_path: str, dir_path: str) -> str: #TODO: fix the path for local and staged files 
+def get_file_content(file_path: str) -> str:
     """Retrieve the content of a file from the working directory."""
     try:
-        with open(f"{dir_path}/{file_path}", "r", encoding="utf-8", errors="ignore") as f:
+        with open(f"{file_path}", "r", encoding="utf-8", errors="ignore") as f:
             return f.read()
     except Exception as e:
-        click.echo(f"Error reading {dir_path}/{file_path}: {e}")
+        click.echo(f"Error reading {file_path}: {e}")
         return ""
 
-def scan_content(file_content: str, regex_patterns: list) -> list:
-    """Scan file content for secrets based on provided regex patterns."""
+def scan_line(file_content: str, regex_patterns: list) -> list:
+    """Scan a line of file content for secrets based on provided regex patterns."""
     findings = []
     for pattern in regex_patterns:
         matches = re.findall(pattern, file_content)
@@ -57,7 +57,6 @@ def scan_content(file_content: str, regex_patterns: list) -> list:
 def scan_path(path: str, staged_only: bool = False, config_path: str = None) -> List[str]:
     """Scan a repository or folder for secrets."""
     result = []
-    click.echo("Loading configuration...")
     config = load_config(config_path)
     exclude_extensions = config.get("exclude_extensions", [])
     exclude_paths = config.get("exclude_paths", [])
@@ -76,26 +75,21 @@ def scan_path(path: str, staged_only: bool = False, config_path: str = None) -> 
         files = get_files(path)
     click.echo(f"Scanning {path} for secrets...")
     for file in files:
+        #click.echo(f"Checking: {os.path.join(path, file)}")
         if (
             not any(file.endswith(ext) for ext in exclude_extensions) and
             not any(re.search(pattern, file) for pattern in exclude_paths)
         ):
-            try:
-                content = get_file_content(file, path)
-            except Exception as e:
-                click.echo(f"Error reading content of {file}: {e}")
-                continue
-
+            content = get_file_content(file)
             findings = []
             for line_number, line in enumerate(content.splitlines(), start=1):
-                secrets = scan_content(line, regex_patterns)
+                secrets = scan_line(line, regex_patterns)
                 for secret in secrets:
                     findings.append((line_number, secret))
 
             if findings:
                 result.append((file, findings))
     return result
-
 
 def install_pre_commit_hook(repo_path: str) -> None:
     """Install a pre-commit hook in the specified repository."""

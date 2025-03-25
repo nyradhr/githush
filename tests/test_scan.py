@@ -1,6 +1,4 @@
 import os
-import subprocess
-
 import pygit2
 import pytest
 import tempfile
@@ -10,24 +8,22 @@ from click.testing import CliRunner
 
 
 @pytest.fixture
-def setup_test_environment_folder(tmp_path):
+def setup_test_environment_folder():
 
-    test_dir = tmp_path / "test_dir"
-    test_dir.mkdir()
+    dir_path = tempfile.mkdtemp()
 
-    # File with secrets
-    file_with_secrets = test_dir / "file_with_secrets.txt"
-    file_with_secrets.write_text(
-        "This is a clean line.\n"
+    secret_file = os.path.join(dir_path, "secrets.txt")
+    with open(secret_file, "w") as f:
+        f.write("This is a clean line.\n"
         "This line contains a SECRET_KEY=123456789.\n"
         "Another clean line here.\n"
-        "This line has a password=supersecretpassword123.\n"
-    )
+        "This line has a password=supersecretpassword123.\n")
 
-    clean_file = test_dir / "file_without_secrets.txt"
-    clean_file.write_text("This is a completely clean file.\nNo secrets here.\n")
+    clean_file = os.path.join(dir_path, "clean.txt")
+    with open(clean_file, "w") as f:
+        f.write("This is a completely clean file.\nNo secrets here.\n")
 
-    return test_dir
+    return dir_path
 
 @pytest.fixture
 def setup_test_environment_repo():
@@ -49,7 +45,7 @@ def test_scan_path_correct_line_numbers(setup_test_environment_folder):
     results = scan_path(str(test_dir))
     expected_results = [
         (
-            str(test_dir / "file_with_secrets.txt"),
+            str(test_dir + "/secrets.txt"),
             [
                 (2, "SECRET_KEY=123456789"),
                 (4, "password=supersecretpassword123."), #included the trailing dot because it's a valid character for passwords
@@ -70,11 +66,11 @@ def test_cli_scan_correct_output(setup_test_environment_folder):
     assert result.exit_code == 1
     output = result.output
 
-    assert "file_with_secrets.txt" in output
+    assert "secrets.txt" in output
     assert "Line 2: SECRET_KEY=123456789" in output
     assert "Line 4: password=supersecretpassword123" in output
 
-    assert "file_without_secrets.txt" not in output
+    assert "clean.txt" not in output #weak test, fix it
 
 
 def test_scan_repo(setup_test_environment_repo):
