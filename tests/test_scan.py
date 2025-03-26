@@ -23,6 +23,10 @@ def setup_test_environment_folder():
     with open(clean_file, "w") as f:
         f.write("This is a completely clean file.\nNo secrets here.\n")
 
+    wrong_extension = os.path.join(dir_path, "example.lock")
+    with open(wrong_extension, "w") as f:
+        f.write("This file should be skipped even if it contains a password=5315341.\n")
+
     return dir_path
 
 @pytest.fixture
@@ -52,26 +56,20 @@ def test_scan_path_correct_line_numbers(setup_test_environment_folder):
             ],
         )
     ]
-
     assert len(results) == 1  # One file should have secrets
     assert results == expected_results
-
 
 def test_cli_scan_correct_output(setup_test_environment_folder):
     test_dir = setup_test_environment_folder
     runner = CliRunner()
-
     result = runner.invoke(scan, [str(test_dir)])
-
     assert result.exit_code == 1
     output = result.output
-
+    assert "clean.txt" not in output
     assert "secrets.txt" in output
+    assert "example.lock" not in output
     assert "Line 2: SECRET_KEY=123456789" in output
     assert "Line 4: password=supersecretpassword123" in output
-
-    assert "clean.txt" not in output #weak test, fix it
-
 
 def test_scan_repo(setup_test_environment_repo):
     test_dir = setup_test_environment_repo

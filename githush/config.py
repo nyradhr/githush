@@ -2,8 +2,8 @@ import yaml
 import click
 
 DEFAULT_CONFIG = {
-    "exclude_extensions": [".jpg", ".png", ".exe", ".bin", ".pdf"],
-    "exclude_paths": [r"(^|/)(node_modules|vendor|githush)/", r"(^|/)\.[^/]+"],
+    "exclude_extensions": [".jpg", ".png", ".exe", ".bin", ".pdf", ".lock"],
+    "exclude_paths": [r"(?:^|\/)(?:node_modules|vendor|githush|tests)\/", r"(?:^|\/)\.[^/]+"],
     "custom_patterns": []
 }
 

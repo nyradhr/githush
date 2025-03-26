@@ -54,7 +54,7 @@ def scan_line(file_content: str, regex_patterns: list) -> list:
             findings.extend(matches)
     return findings
 
-def scan_path(path: str, staged_only: bool = False, config_path: str = None) -> List[str]:
+def scan_path(folder_path: str, staged_only: bool = False, config_path: str = None) -> List[str]:
     """Scan a repository or folder for secrets."""
     result = []
     config = load_config(config_path)
@@ -63,19 +63,19 @@ def scan_path(path: str, staged_only: bool = False, config_path: str = None) -> 
     regex_patterns = SECRET_PATTERNS + config.get("custom_patterns", [])
     if staged_only:
         try:
-            repo = Repository(path)
+            repo = Repository(folder_path)
             files = [entry.path for entry in repo.index]
             if len(files) == 0:
                 click.echo("No staged files to scan.")
                 return result
         except Exception as e:
-            click.echo(f"Error accessing Git repository at {path}: {e}")
+            click.echo(f"Error accessing Git repository at {folder_path}: {e}")
             return result
     else:
-        files = get_files(path)
-    click.echo(f"Scanning {path} for secrets...")
+        files = get_files(folder_path)
+    click.echo(f"Scanning {folder_path} for secrets...")
     for file in files:
-        #click.echo(f"Checking: {os.path.join(path, file)}")
+        #click.echo(f"Checking: {os.path.join(folder_path, file)}")
         if (
             not any(file.endswith(ext) for ext in exclude_extensions) and
             not any(re.search(pattern, file) for pattern in exclude_paths)
