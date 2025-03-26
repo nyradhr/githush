@@ -8,9 +8,8 @@ exclude_extensions:
 
 # Custom paths to skip
 exclude_paths:
-  - "node_modules/"
-  - "vendor/"
-  - "^\\."  # Exclude hidden files and directories
+  - r"(^|/)(node_modules|vendor|githush)/"
+  - r"(^|/)\.[^/]+"
 
 # Custom regex patterns (optional)
 custom_patterns:

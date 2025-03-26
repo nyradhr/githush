@@ -11,7 +11,7 @@ description = "A CLI tool to scan repositories for secrets"
 authors = [{ name = "Alessio Piccione", email = "alessio.piccione@hotmail.it" }]
 dependencies = [
     "click>=8.0",
-    "gitpython",
+    "pygit2",
     "mypy",
     "pyYAML",
     "rich",

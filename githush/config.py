@@ -3,7 +3,7 @@ import click
 
 DEFAULT_CONFIG = {
     "exclude_extensions": [".jpg", ".png", ".exe", ".bin", ".pdf"],
-    "exclude_paths": [r"(^|/)(node_modules|vendor)/", r"(^|/)\.[^/]+"],
+    "exclude_paths": [r"(^|/)(node_modules|vendor|githush)/", r"(^|/)\.[^/]+"],
     "custom_patterns": []
 }
 
