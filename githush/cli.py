@@ -1,6 +1,6 @@
 import click
 import sys
-from githush.scan import scan_path
+from githush.scan import scan_path, install_pre_commit_hook
 
 @click.group()
 def main() -> None:
@@ -27,6 +27,12 @@ def scan(path: str, staged_only: bool, config_path: str) -> None:
     else:
         click.echo("No secrets found.")
         sys.exit(0)
+
+@click.command()
+@click.argument("path", type=click.Path(exists=True, file_okay=False, dir_okay=True))
+def install_hook(path: str) -> None:
+    """Install pre commit hook to block commits that contain secrets"""
+    install_pre_commit_hook(path)
 
 main.add_command(scan)
 

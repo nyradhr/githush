@@ -102,6 +102,8 @@ def scan_path(folder_path: str, staged_only: bool = False, config_path: str = No
 
 def install_pre_commit_hook(repo_path: str) -> None:
     """Install a pre-commit hook in the specified repository."""
+    if not os.path.exists(repo_path+"/.git"):
+        click.echo(f"The given path does not correspond to a valid Git repository.")
     git_hooks_dir = os.path.join(repo_path, ".git", "hooks")
     pre_commit_hook_path = os.path.join(git_hooks_dir, "pre-commit")
     
