@@ -65,16 +65,13 @@ def scan_path(folder_path: str, staged_only: bool = False, config_path: str = No
     if staged_only:
         try:
             repo = Repository(folder_path)
-            #files = [os.path.join(folder_path, entry.path) for entry in repo.index]
             staged_files = []
             statuses = repo.status()
 
             for entry in repo.index:
                 file_path = os.path.join(folder_path, entry.path)
-                #fix this part - start
                 if (statuses.get(entry.path, 0) & FileStatus.INDEX_NEW or
                 statuses.get(entry.path, 0) & FileStatus.INDEX_MODIFIED):
-                    #fix this part  - end
                     staged_files.append(file_path)
 
             files = staged_files
@@ -88,7 +85,6 @@ def scan_path(folder_path: str, staged_only: bool = False, config_path: str = No
         files = get_files(folder_path)
     click.echo(f"Scanning {folder_path} for secrets...")
     for file in files:
-        #click.echo(f"Checking: {os.path.join(folder_path, file)}")
         if (
             not any(file.endswith(ext) for ext in exclude_extensions) and
             not any(re.search(pattern, file) for pattern in exclude_paths)
