@@ -35,6 +35,7 @@ def install_hook(path: str) -> None:
     install_pre_commit_hook(path)
 
 main.add_command(scan)
+main.add_command(install_hook)
 
 if __name__ == "__main__":
     main()
