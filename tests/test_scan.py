@@ -77,7 +77,7 @@ def test_scan_repo(setup_test_environment_repo):
     results = scan_path(str(test_dir), True)
     expected_results = [
         (
-            str("secrets.txt"),
+            str(str(test_dir)+"/secrets.txt"),
             [
                 (1, "password: hunter2")
             ],

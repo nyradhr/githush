@@ -4,6 +4,7 @@ import click
 import stat
 from typing import List
 from pygit2 import Repository
+from pygit2.enums import FileStatus
 from githush.config import load_config
 
 SECRET_PATTERNS = [
@@ -64,7 +65,19 @@ def scan_path(folder_path: str, staged_only: bool = False, config_path: str = No
     if staged_only:
         try:
             repo = Repository(folder_path)
-            files = [entry.path for entry in repo.index]
+            #files = [os.path.join(folder_path, entry.path) for entry in repo.index]
+            staged_files = []
+            statuses = repo.status()
+
+            for entry in repo.index:
+                file_path = os.path.join(folder_path, entry.path)
+                #fix this part - start
+                if (statuses.get(entry.path, 0) & FileStatus.INDEX_NEW or
+                statuses.get(entry.path, 0) & FileStatus.INDEX_MODIFIED):
+                    #fix this part  - end
+                    staged_files.append(file_path)
+
+            files = staged_files
             if len(files) == 0:
                 click.echo("No staged files to scan.")
                 return result
