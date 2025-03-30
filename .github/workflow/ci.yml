@@ -1,0 +1,28 @@
+name: githush-scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Githush from GitHub
+        run: |
+          pip install git+https://github.com/nyradhr/githush.git@main
+
+      - name: Run Githush Scan
+        run: |
+          githush scan .
