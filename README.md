@@ -8,7 +8,6 @@
 - **Pre-commit hook integration** to block unsafe commits  
 - **CI/CD compatibility** to enforce security in pipelines  
 
----
 
 ## Installation
 
@@ -19,7 +18,7 @@ git clone https://github.com/nyradhr/githush.git
 cd githush
 ```
 
-### Using pip (for end users)
+### Using `pip` (for end users)
 
 ```sh
 pip install .
