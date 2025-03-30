@@ -1,4 +1,5 @@
 import click
+import pathlib
 import sys
 from githush.scan import scan_path, install_pre_commit_hook
 
@@ -16,6 +17,7 @@ def main() -> None:
 )
 def scan(path: str, staged_only: bool, config_path: str) -> None:
     """Scan a repository or directory for exposed secrets."""
+    path = str(pathlib.Path(path).resolve())
     results = scan_path(path, staged_only=staged_only, config_path=config_path)
     if results:
         click.echo("\nSecrets Found:")
