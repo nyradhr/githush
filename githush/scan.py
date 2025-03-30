@@ -55,9 +55,9 @@ def scan_line(file_content: str, regex_patterns: list) -> list:
             findings.extend(matches)
     return findings
 
-def scan_path(folder_path: str, staged_only: bool = False, config_path: str = None) -> List[str]:
+def scan_path(folder_path: str, staged_only: bool = False, config_path: str = "") -> list:
     """Scan a repository or folder for secrets."""
-    result = []
+    result: list[tuple[str, list[tuple[int, str]]]] = []
     config = load_config(config_path)
     exclude_extensions = config.get("exclude_extensions", [])
     exclude_paths = config.get("exclude_paths", [])
@@ -90,7 +90,7 @@ def scan_path(folder_path: str, staged_only: bool = False, config_path: str = No
             not any(re.search(pattern, file) for pattern in exclude_paths)
         ):
             content = get_file_content(file)
-            findings = []
+            findings: list[tuple[int, str]] = []
             for line_number, line in enumerate(content.splitlines(), start=1):
                 secrets = scan_line(line, regex_patterns)
                 for secret in secrets:
@@ -103,11 +103,11 @@ def scan_path(folder_path: str, staged_only: bool = False, config_path: str = No
 def install_pre_commit_hook(repo_path: str) -> None:
     """Install a pre-commit hook in the specified repository."""
     if not os.path.exists(repo_path+"/.git"):
-        click.echo(f"The given path does not correspond to a valid Git repository.")
+        click.echo("The given path does not correspond to a valid Git repository.")
     git_hooks_dir = os.path.join(repo_path, ".git", "hooks")
     pre_commit_hook_path = os.path.join(git_hooks_dir, "pre-commit")
     
-    hook_script = f"""#!/bin/sh
+    hook_script = """#!/bin/sh
 githush scan $PWD --staged-only
 if [ $? -ne 0 ]; then
     echo "Commit blocked due to detected secrets. Please fix them and try again."
