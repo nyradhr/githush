@@ -9,8 +9,8 @@ exclude_extensions:
 
 # Custom paths to skip
 exclude_paths:
-  - r"(?:^|/)(?:node_modules|vendor|githush|tests)/"
-  - r"(?:^|/)\.[^/]+"
+  - r"(?:^|\/|\\)(?:node_modules|vendor|githush|tests)(\/|\\)"
+  - r"(?:^|\/|\\)\.[^/]+"
 
 # Custom regex patterns (optional)
 custom_patterns:
