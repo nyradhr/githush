@@ -3,8 +3,10 @@ import pathlib
 import sys
 from githush.scan import scan_path, install_pre_commit_hook
 
-@click.group()
+@click.group(add_help_option=False)
+#@click.help_option('--help', '-h', help='Show the help message and exit.')
 def main() -> None:
+    """A tool to scan folders and repositories for secrets."""
     pass
 
 @click.command()
@@ -13,7 +15,7 @@ def main() -> None:
 @click.option(
     "--config-path",
     type=click.Path(exists=True),
-    help="Path to the githush configuration file"
+    help="Path to the githush configuration file."
 )
 def scan(path: str, staged_only: bool, config_path: str) -> None:
     """Scan a repository or directory for exposed secrets."""
@@ -33,7 +35,7 @@ def scan(path: str, staged_only: bool, config_path: str) -> None:
 @click.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False, dir_okay=True))
 def install_hook(path: str) -> None:
-    """Install pre commit hook to block commits that contain secrets"""
+    """Install pre commit hook to block commits containing secrets."""
     install_pre_commit_hook(path)
 
 main.add_command(scan)

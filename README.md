@@ -1,6 +1,7 @@
 # Githush 
 
-**Githush** is a CLI tool that scans repositories for exposed secrets and prevents unsafe commits using Git hooks and CI/CD pipelines.  
+`Githush` is a CLI tool that scans repositories for exposed secrets and prevents unsafe commits using Git hooks and CI/CD pipelines.  
+
 
 ## Features  
 
@@ -11,62 +12,93 @@
 
 ## Installation
 
-### Clone the Repository
+**Note:** this package is not published on `PyPI`, in order to install `Githush` you need to clone the repository and install it into a virtual environment.
+
+### Clone the repository
 
 ```sh
 git clone https://github.com/nyradhr/githush.git
 cd githush
 ```
 
-### Using `pip` (for end users)
+### Virtual environment setup
+
+#### Create the virtual environment
+
+
+Install `uv`
 
 ```sh
-pip install .
+pipx install uv
 ```
 
-### Using `uv` (for developers)
+Create the venv
 
 ```sh
-uv venv          # Create a virtual environment
-source .venv/bin/activate  # Activate it (Linux/macOS)
-.venv\Scripts\activate     # Activate it (Windows)
-
-uv pip install .[dev, lint] #Installs all dependencies, including the optional groups
+uv venv
 ```
+
+#### Activate the virtual environment
+
+On Unix/Linux:
+
+```sh
+source .venv/bin/activate 
+```
+
+On Windows:
+
+```sh
+.venv\Scripts\activate
+```
+
 
 ## Usage
 
 ### Scan a repository
+```
+Usage: githush scan [OPTIONS] PATH
 
-Scans the given repository for hardcoded secrets.
+  Scan a repository or directory for exposed secrets.
 
-```sh
-githush scan path/to/repository
+Options:
+  --staged-only       Scan only staged files.
+  --config-path PATH  Path to the githush configuration file.
+  --help              Show this message and exit.
 ```
 
-### Installing the pre-commit git hook
+### Install the pre-commit git hook
 
-To prevent committing secrets, install the hook:
+```
+Usage: githush install-hook [OPTIONS] PATH
 
-```sh
-githush install-hook path/to/repository
+  Install pre commit hook to block commits containing secrets.
+
+Options:
+  --help  Show this message and exit.
 ```
 
-## Development setup
+## For contributing developers
 
-### Run Tests
+The following command installs the dependencies from the optional groups in pyproject.toml
+
+```sh
+uv pip install .[dev, lint] 
+```
+
+Run tests
 
 ```sh
 uv run pytest
 ```
 
-### Run Linters
+Run linters
 
 ```sh
 uv run ruff check .
 ```
 
-### Run Type Checking
+Run type checking
 
 ```sh
 mypy githush
