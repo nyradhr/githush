@@ -1,61 +1,35 @@
-# Githush 
+# Githush
 
-`Githush` is a CLI tool that scans repositories for exposed secrets and prevents unsafe commits using Git hooks and CI/CD pipelines.  
+**Githush** is a CLI tool that scans repositories for exposed secrets and prevents unsafe commits using Git hooks and CI/CD pipelines.
 
+---
 
-## Features  
+## 🚀 Features
 
-- **Secret scanning** for exposed credentials in repositories  
-- **Pre-commit hook integration** to block unsafe commits  
-- **CI/CD compatibility** to enforce security in pipelines  
+- 🔍 **Secret scanning** for exposed credentials in repositories  
+- 🔐 **Pre-commit hook integration** to block unsafe commits  
+- ⚙️ **CI/CD compatibility** to enforce security in pipelines
 
+---
 
-## Installation
+## 📦 Installation
 
-**Note:** this package is not published on `PyPI`, in order to install `Githush` you need to clone the repository and install it into a virtual environment.
-
-### Clone the repository
-
-```sh
-git clone https://github.com/nyradhr/githush.git
-cd githush
-```
-
-### Virtual environment setup
-
-#### Create the virtual environment
-
-
-Install `uv`
+Install via [pipx](https://pypa.github.io/pipx/), which safely installs CLI tools in isolated environments:
 
 ```sh
-pipx install uv
+pipx install githush
 ```
 
-Create the venv
+Alternatively, install directly via pip:
+
 
 ```sh
-uv venv
+pip install githush
 ```
 
-#### Activate the virtual environment
+## 🧪 Usage
 
-On Unix/Linux:
-
-```sh
-source .venv/bin/activate 
-```
-
-On Windows:
-
-```sh
-.venv\Scripts\activate
-```
-
-
-## Usage
-
-### Scan a repository
+### 🔍 Scan a repository
 ```
 Usage: githush scan [OPTIONS] PATH
 
@@ -67,7 +41,7 @@ Options:
   --help              Show this message and exit.
 ```
 
-### Install the pre-commit git hook
+### 🪝 Install the pre-commit git hook
 
 ```
 Usage: githush install-hook [OPTIONS] PATH
@@ -78,27 +52,64 @@ Options:
   --help  Show this message and exit.
 ```
 
-## For contributing developers
+## 🧑‍💻 For contributing developers
 
-The following command installs the dependencies from the optional groups in pyproject.toml
+
+### 🛠 Clone the repository
+
+```sh
+git clone https://github.com/nyradhr/githush.git
+cd githush
+```
+
+### 🐍 Set up virtual environment with uv
+
+
+1. Install `uv`
+
+```sh
+pipx install uv
+```
+
+2. Create the virtual environment:
+
+```sh
+uv venv
+```
+
+3. Activate the virtual environment
+
+    - Unix/macOS:
+
+    ```sh
+    source .venv/bin/activate 
+    ```
+
+    - Windows:
+
+    ```sh
+    .venv\Scripts\activate
+    ```
+
+### 📥 Install dev dependencies
 
 ```sh
 uv pip install .[dev, lint] 
 ```
 
-Run tests
+### 🧪 Run tests
 
 ```sh
 uv run pytest
 ```
 
-Run linters
+### 🧹 Run linter
 
 ```sh
 uv run ruff check .
 ```
 
-Run type checking
+### 🔎 Run static type checks
 
 ```sh
 mypy githush
